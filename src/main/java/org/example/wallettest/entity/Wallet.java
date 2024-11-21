@@ -18,6 +18,6 @@ public class Wallet {
     @Column(nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+    @Version
+    private Long version;
 }

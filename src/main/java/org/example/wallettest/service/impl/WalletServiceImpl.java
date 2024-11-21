@@ -1,5 +1,6 @@
 package org.example.wallettest.service.impl;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.example.wallettest.dto.WalletDTO;
 import org.example.wallettest.entity.Wallet;
@@ -42,7 +43,12 @@ public class WalletServiceImpl implements WalletService {
             }
             default -> throw new IllegalArgumentException("Invalid operation type");
         }
-        return WalletMapper.toDTO(walletRepository.save(wallet));
+
+        try {
+            return WalletMapper.toDTO(walletRepository.save(wallet));
+        } catch (OptimisticLockException e) {
+            throw new IllegalStateException("Данные были изменены другой транзакцией.", e);
+        }
     }
 
     @Override
