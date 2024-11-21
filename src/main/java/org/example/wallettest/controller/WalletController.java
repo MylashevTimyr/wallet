@@ -23,14 +23,14 @@ public class WalletController {
     private final WalletService walletService;
     private final RateLimiterService rateLimiterService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<WalletDTO> createWallet() {
         WalletDTO wallet = walletService.createWallet();
         logger.info("Wallet created with ID: {}", wallet.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
     }
 
-    @PostMapping("/{walletId}")
+    @PostMapping("/update-balance")
     public ResponseEntity<WalletDTO> performOperation(
             @RequestParam UUID walletId,
             @RequestParam String operationType,
