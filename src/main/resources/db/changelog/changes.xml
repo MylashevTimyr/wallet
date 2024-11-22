@@ -13,9 +13,6 @@
             <column name="balance" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="version" type="bigint">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

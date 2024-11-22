@@ -1,6 +1,5 @@
 package org.example.wallettest.service.impl;
 
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.example.wallettest.dto.WalletDTO;
 import org.example.wallettest.entity.Wallet;
@@ -30,25 +29,23 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public WalletDTO updateBalance(UUID walletId, String operationType, BigDecimal amount) {
-        Wallet wallet = walletRepository.findById(walletId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
+        int updatedRows;
 
         switch (operationType) {
-            case "DEPOSIT" -> wallet.setBalance(wallet.getBalance().add(amount));
-            case "WITHDRAW" -> {
-                if (wallet.getBalance().compareTo(amount) < 0) {
-                    throw new IllegalArgumentException("Insufficient balance");
-                }
-                wallet.setBalance(wallet.getBalance().subtract(amount));
-            }
-            default -> throw new IllegalArgumentException("Invalid operation type");
+            case "DEPOSIT" ->
+                    updatedRows = walletRepository.deposit(walletId, amount);
+            case "WITHDRAW" ->
+                    updatedRows = walletRepository.withdraw(walletId, amount);
+            default ->
+                    throw new IllegalArgumentException("Invalid operation type");
+        }
+        if (updatedRows == 0) {
+            throw new IllegalStateException("Operation failed: wallet not found or insufficient balance.");
         }
 
-        try {
-            return WalletMapper.toDTO(walletRepository.save(wallet));
-        } catch (OptimisticLockException e) {
-            throw new IllegalStateException("Данные были изменены другой транзакцией.", e);
-        }
+        Wallet wallet = walletRepository.findById(walletId)
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
+        return WalletMapper.toDTO(wallet);
     }
 
     @Override
